@@ -3,17 +3,25 @@ const config = require("../resources/config")
 
 const baseURL = config.baseURL;
 
-describe('Puppeteer Tests', () => {
+describe('Handesaim Tel-Aviv Sanity', () => {
   let browser;
   let page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({ headless: false });
-    //page = await browser.newPage();
+    browser = await puppeteer.launch({
+      headless: false,
+      defaultViewport: null,
+      args: ["--start-maximized"]
+    });
+    page = await browser.newPage();
   });
 
   beforeEach(async () => {
     await page.goto(baseURL);
+  })
+
+  afterEach(async () => {
+    await page.screenshot({ path: 'screenshots/login_success.png', fullPage: true })
   })
 
   afterAll(async () => {
@@ -22,19 +30,21 @@ describe('Puppeteer Tests', () => {
 
   test('should load the page and check the title', async () => {
     const title = await page.title();
-    expect(title).toBe('YouTube');
+    expect(title).toBe('הנדסאים תל אביב תחנת מידע לסטודנטים ולסטודנטיות');
   });
 
-  test('should find an element and click it', async () => {
-    await page.click('a'); 
+  test('should login successfully with a valid ID and password', async () => {
+    const IdField = "#R1C1";
+    const PasswordField = "#R1C2";
+    const submitBtn = "#loginbtn";
+    const gradeExistPath = "xpath/.//button/span[contains(text(), 'ציונים')]";
 
-    await page.waitForNavigation();
-    const newUrl = page.url();
-    expect(newUrl).toBe('https://www.iana.org/domains/reserved');
-  });
+    await page.waitForSelector(IdField)
+    await page.type(IdField, "209850684");
+    await page.type(PasswordField, "Fabio1965!");
+    await page.click(submitBtn);
 
-  test('should check the content of an element', async () => {
-    const content = await page.$eval('h1', (element) => element.textContent);
-    expect(content).toBe('Example Domain');
+    const gradeExist = await page.$$(gradeExistPath)
+    expect(gradeExist).not.toBeNull();
   });
 });
