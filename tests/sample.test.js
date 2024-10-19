@@ -1,7 +1,7 @@
+require('dotenv').config();
 const puppeteer = require('puppeteer');
-const config = require("../resources/config")
-
-const baseURL = config.baseURL;
+const config = require("../resources/config");
+const selectors = require("../resources/selectors");
 
 describe('Handesaim Tel-Aviv Sanity', () => {
   let browser;
@@ -17,34 +17,31 @@ describe('Handesaim Tel-Aviv Sanity', () => {
   });
 
   beforeEach(async () => {
-    await page.goto(baseURL);
+    await page.goto(config.baseURL);
   })
 
   afterEach(async () => {
-    await page.screenshot({ path: 'screenshots/login_success.png', fullPage: true })
+    await page.screenshot({ path: config.screenshotPath, fullPage: true })
   })
 
   afterAll(async () => {
     await browser.close();
   });
 
-  test('should load the page and check the title', async () => {
-    const title = await page.title();
-    expect(title).toBe('הנדסאים תל אביב תחנת מידע לסטודנטים ולסטודנטיות');
-  });
+  describe("Login tests", () => {
+    test('Should load the page and check the title', async () => {
+      const title = await page.title();
+      expect(title).toBe('הנדסאים תל אביב תחנת מידע לסטודנטים ולסטודנטיות');
+    });
 
-  test('should login successfully with a valid ID and password', async () => {
-    const IdField = "#R1C1";
-    const PasswordField = "#R1C2";
-    const submitBtn = "#loginbtn";
-    const gradeExistPath = "xpath/.//button/span[contains(text(), 'ציונים')]";
+    test('Should login successfully with a valid ID and password', async () => {
+      await page.waitForSelector(selectors.loginPage.IdField);
+      await page.type(selectors.loginPage.IdField, process.env.ID);
+      await page.type(selectors.loginPage.PasswordField, process.env.PASSWORD);
+      await page.click(selectors.loginPage.submitBtn);
 
-    await page.waitForSelector(IdField)
-    await page.type(IdField, "209850684");
-    await page.type(PasswordField, "Fabio1965!");
-    await page.click(submitBtn);
-
-    const gradeExist = await page.$$(gradeExistPath)
-    expect(gradeExist).not.toBeNull();
+      const gradeExist = await page.waitForSelector(selectors.loginPage.gradeExistPath);
+      expect(gradeExist).not.toBeNull();
+    });
   });
 });
