@@ -43,5 +43,16 @@ describe('Handesaim Tel-Aviv Sanity', () => {
       const gradeExist = await page.waitForSelector(selectors.loginPage.gradeExistPath);
       expect(gradeExist).not.toBeNull();
     });
+
+    test('Should fail with invalid ID or password', async () => {
+      await page.waitForSelector(selectors.loginPage.IdField);
+      await page.type(selectors.loginPage.IdField, process.env.INVALID_ID);
+      await page.type(selectors.loginPage.PasswordField, process.env.PASSWORD);
+      await page.click(selectors.loginPage.submitBtn);
+
+      const errorDialog = await page.waitForSelector(selectors.loginPage.incorrectCredentials);
+      const errorDialogText = await errorDialog.evaluate(el => el.textContent);
+      expect(errorDialogText).toBe("הסיסמה או תעודה הזהות שהוקלדה שגויה (קוד 6)  יש לשים לב, זוהי כניסת סטודנטלחץ back ונסה שנית");
+    });
   });
 });
