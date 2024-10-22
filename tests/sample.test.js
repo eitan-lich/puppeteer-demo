@@ -2,6 +2,7 @@ require('dotenv').config();
 const puppeteer = require('puppeteer');
 const config = require("../resources/config");
 const selectors = require("../resources/selectors");
+const { login } = require("../resources/helper");
 
 describe('Handesaim Tel-Aviv Sanity', () => {
   let browser;
@@ -9,7 +10,7 @@ describe('Handesaim Tel-Aviv Sanity', () => {
 
   beforeAll(async () => {
     browser = await puppeteer.launch({
-      headless: false,
+      headless: true,
       defaultViewport: null,
       args: ["--start-maximized"]
     });
@@ -38,7 +39,11 @@ describe('Handesaim Tel-Aviv Sanity', () => {
       await page.waitForSelector(selectors.loginPage.IdField);
       await page.type(selectors.loginPage.IdField, process.env.ID);
       await page.type(selectors.loginPage.PasswordField, process.env.PASSWORD);
-      await page.click(selectors.loginPage.submitBtn);
+      
+      await Promise.all([
+        await page.click(selectors.loginPage.submitBtn),
+        page.waitForNavigation({ waitUntil: 'networkidle0' })  
+      ]);
 
       const gradeExist = await page.waitForSelector(selectors.loginPage.gradeExistPath);
       expect(gradeExist).not.toBeNull();
@@ -48,11 +53,59 @@ describe('Handesaim Tel-Aviv Sanity', () => {
       await page.waitForSelector(selectors.loginPage.IdField);
       await page.type(selectors.loginPage.IdField, process.env.INVALID_ID);
       await page.type(selectors.loginPage.PasswordField, process.env.PASSWORD);
-      await page.click(selectors.loginPage.submitBtn);
+      
+      await Promise.all([
+        await page.click(selectors.loginPage.submitBtn),
+        page.waitForNavigation({ waitUntil: 'networkidle0' })  
+      ]);
 
       const errorDialog = await page.waitForSelector(selectors.loginPage.incorrectCredentials);
       const errorDialogText = await errorDialog.evaluate(el => el.textContent);
       expect(errorDialogText).toBe("הסיסמה או תעודה הזהות שהוקלדה שגויה (קוד 6)  יש לשים לב, זוהי כניסת סטודנטלחץ back ונסה שנית");
     });
+  });
+
+
+  describe("Navigaton buttons tests", () => {
+    test("Grades button", async () => {
+      login(page);
+
+      Promise.all([
+        await page.waitForSelector(selectors.mainPage.gradeBtnMain),
+        await page.click(selectors.mainPage.gradeBtnMain),
+        await page.waitForSelector(selectors.mainPage.gradeBtnSub),
+        await page.click(selectors.mainPage.gradeBtnSub),
+        await page.waitForNavigation({ waitUntil: "networkidle0"}),
+        await page.waitForSelector(selectors.gradePage.confirmBtn),
+        await page.click(selectors.gradePage.confirmBtn),
+        await page.waitForNavigation({ waitUntil: "networkidle0"})
+      ])
+
+      await page.waitForSelector(selectors.gradePage.gradeHeader);
+      
+      const gradeHeaderText = await page.$eval(selectors.gradePage.gradeHeader, (val) =>  val.textContent);
+      expect(gradeHeaderText).toBe(" גליון ציונים ");
+    });
+
+    xtest("Exams button", async () => {
+
+    });
+
+    xtest("Schedule button", async () => {
+
+    });
+
+    xtest("Courses button", async () => {
+
+    });
+
+    xtest("Finances button", async () => {
+
+    });
+
+    xtest("General button", async () => {
+
+    });
+
   });
 });
