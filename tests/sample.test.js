@@ -68,23 +68,23 @@ describe('Handesaim Tel-Aviv Sanity', () => {
 
   describe("Navigaton buttons tests", () => {
     test("Grades button", async () => {
-      login(page);
+      await login(page);
 
       Promise.all([
-        await page.waitForSelector(selectors.mainPage.gradeBtnMain),
-        await page.click(selectors.mainPage.gradeBtnMain),
-        await page.waitForSelector(selectors.mainPage.gradeBtnSub),
-        await page.click(selectors.mainPage.gradeBtnSub),
-        await page.waitForNavigation({ waitUntil: "networkidle0"}),
-        await page.waitForSelector(selectors.gradePage.confirmBtn),
-        await page.click(selectors.gradePage.confirmBtn),
-        await page.waitForNavigation({ waitUntil: "networkidle0"})
+        page.waitForSelector(selectors.mainPage.gradeBtnMain),
+        page.click(selectors.mainPage.gradeBtnMain),
+        page.waitForSelector(selectors.mainPage.gradeBtnSub),
+        page.click(selectors.mainPage.gradeBtnSub),
+        page.waitForNavigation({ waitUntil: "networkidle0"}),
+        page.waitForSelector(selectors.gradePage.confirmBtn),
+        page.click(selectors.gradePage.confirmBtn),
+        page.waitForNavigation({ waitUntil: "networkidle0"})
       ])
 
       await page.waitForSelector(selectors.gradePage.gradeHeader);
       
-      const gradeHeaderText = await page.$eval(selectors.gradePage.gradeHeader, (val) =>  val.textContent);
-      expect(gradeHeaderText).toBe(" גליון ציונים ");
+      const gradeHeaderText = await page.$eval(selectors.gradePage.gradeHeader, (val) =>  val.textContent.trim());
+      expect(gradeHeaderText).toBe("גליון ציונים");
     });
 
     xtest("Exams button", async () => {
