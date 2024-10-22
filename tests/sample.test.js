@@ -68,7 +68,7 @@ describe('Handesaim Tel-Aviv Sanity', () => {
 
   describe("Navigaton buttons tests", () => {
     test("Grades button", async () => {
-      await login(page);
+      login(page);
 
       Promise.all([
         page.waitForSelector(selectors.mainPage.gradeBtnMain),
