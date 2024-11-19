@@ -5,14 +5,20 @@ const selectors = require("../resources/selectors");
 
 
 async function login(page) {
-    await page.waitForSelector(selectors.loginPage.IdField);
-    await page.type(selectors.loginPage.IdField, process.env.ID);
-    await page.type(selectors.loginPage.PasswordField, process.env.PASSWORD);
-    
-    await Promise.all([
-      await page.click(selectors.loginPage.submitBtn),
-      page.waitForNavigation({ waitUntil: 'networkidle0' })  
-    ]);
-};
+    await page.waitForSelector(selectors.loginPage.id);
+    await page.type(selectors.loginPage.id, process.env.ID);
+    await page.type(selectors.loginPage.password, process.env.PASSWORD);
+    await page.click(selectors.loginPage.submit);
+}
 
-module.exports = { login };
+async function waitAndClick(page, selector) {
+    await page.waitForSelector(selector);
+    await page.click(selector);
+}
+
+async function waitAndType(page, selector, text) {
+    await page.waitForSelector(selector);
+    await page.type(selector, text);
+}
+
+module.exports = { login, waitAndClick, waitAndType };
