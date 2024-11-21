@@ -19,7 +19,6 @@ describe('Handesaim Tel-Aviv Sanity', () => {
 
   beforeEach(async () => {
     await page.goto(config.baseURL);
-    await login(page);
   })
 
   afterEach(async () => {
@@ -32,19 +31,22 @@ describe('Handesaim Tel-Aviv Sanity', () => {
 
   describe("Login tests", () => {
     test('Login successfully with valid ID and password', async () => {
+      await login(page);
       const gradeExist = await page.waitForSelector(selectors.toolbar.grade);
       expect(gradeExist).not.toBeNull();
     });
 
     test('Login failure with invalid ID or password', async () => {
-      const errorDialog = await page.waitForSelector(selectors.loginPage.incorrectCredentials);
-      const errorDialogText = await errorDialog.evaluate(el => el.textContent);
+      await login(page, false);
+      await page.waitForSelector(selectors.loginPage.incorrectCredentials);
+      const errorDialogText = await page.$eval(selectors.loginPage.incorrectCredentials, (el) => el.textContent.trim());
       expect(errorDialogText).toBe("הסיסמה או תעודה הזהות שהוקלדה שגויה (קוד 6)  יש לשים לב, זוהי כניסת סטודנטלחץ back ונסה שנית");
     });
   });
 
   describe("Toolbar tests", () => {
     test("Grades", async () => {
+      await login(page);
       await page.waitForSelector(selectors.toolbar.grade);
       await page.click(selectors.toolbar.grade);
       await page.waitForSelector(selectors.toolbar.gradeList);
@@ -58,6 +60,7 @@ describe('Handesaim Tel-Aviv Sanity', () => {
     });
 
     test("Exams", async () => {
+      await login(page);
       await waitAndClick(page, selectors.toolbar.exams);
       await waitAndClick(page, selectors.toolbar.examsBoard);
       await waitAndClick(page, selectors.examPage.confirm);
@@ -66,20 +69,24 @@ describe('Handesaim Tel-Aviv Sanity', () => {
       expect(popup).not.toBeNull();
     });
 
-    xtest("Schedule", async () => {
+    test("Schedule", async () => {
+      await login(page);
 
+      await waitAndClick(page, selectors.toolbar.schedule);
+      const btnExist = await page.waitForSelector(selectors.schedulePage.nextMonth);
+      expect(btnExist).not.toBeNull();
     });
 
     xtest("Courses", async () => {
-
+      await login(page, true);
     });
 
     xtest("Finances", async () => {
-
+      await login(page, true);
     });
 
     xtest("General", async () => {
-
+      await login(page, true);
     });
 
   });

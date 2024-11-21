@@ -4,10 +4,16 @@ const config = require("../resources/config");
 const selectors = require("../resources/selectors");
 
 
-async function login(page) {
+async function login(page, validLogin = true) {
     await page.waitForSelector(selectors.loginPage.id);
-    await page.type(selectors.loginPage.id, process.env.ID);
-    await page.type(selectors.loginPage.password, process.env.PASSWORD);
+
+    if(validLogin) {
+        await page.type(selectors.loginPage.id, process.env.ID);
+        await page.type(selectors.loginPage.password, process.env.PASSWORD);
+    } else {
+        await page.type(selectors.loginPage.id, process.env.INVALID_ID);
+        await page.type(selectors.loginPage.password, process.env.PASSWORD);
+    }
     await page.click(selectors.loginPage.submit);
 }
 
