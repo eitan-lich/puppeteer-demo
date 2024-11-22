@@ -73,20 +73,21 @@ describe('Handesaim Tel-Aviv Sanity', () => {
       await login(page);
 
       await waitAndClick(page, selectors.toolbar.schedule);
+      await waitAndClick(page, selectors.toolbar.scheduleCalender);
       const btnExist = await page.waitForSelector(selectors.schedulePage.nextMonth);
       expect(btnExist).not.toBeNull();
     });
 
     xtest("Courses", async () => {
-      await login(page, true);
+      await login(page);
     });
 
     xtest("Finances", async () => {
-      await login(page, true);
+      await login(page);
     });
 
     xtest("General", async () => {
-      await login(page, true);
+      await login(page);
     });
 
   });
